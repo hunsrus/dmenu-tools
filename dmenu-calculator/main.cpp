@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	std::string filePath = std::string(getenv("HOME"))+"/.calc_history";
 	std::list<std::string> historyContent;
 
-	// crea el archivo si no existe (std::fstream::app evita que se reemplaze el contenido)
+	// crea el archivo si no existe (std::fstream::app evita que se reemplace el contenido)
 	std::fstream historyFile(filePath.c_str(), std::fstream::out | std::fstream::app);
 	historyFile.close();
 	// abre el archivo y lee el historial una única vez
