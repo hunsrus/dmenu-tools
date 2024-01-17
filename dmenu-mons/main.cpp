@@ -1,12 +1,6 @@
 #include <iostream>
-#include <string>
-#include <list>
-#include <array>
-#include <memory>
-#include <sstream>
+#include "../include/utilities.h"
 
-std::string exec(const char* cmd);
-std::string menu(std::string launcher, std::string theme, std::string prompt, std::list<std::string> options);
 void getScreens(void);
 std::list<std::string> getDevices(void);
 std::string selectDevice(void);
@@ -72,7 +66,7 @@ int main(int argc, char *argv[])
 	//const std::string theme = "-theme $HOME/.config/rofi/launchers/type-1/style-3.rasi -l 5";
 	theme += " -l 5";
 	theme_no_entry = theme;
-	if(launcher == "rofi") theme_no_entry += " -theme-str \"entry {enabled: false;}\"";
+	if(launcher == "rofi -dmenu") theme_no_entry += " -theme-str \"entry {enabled: false;}\"";
 	//const std::string theme = "-theme $HOME/.config/rofi/applets/type-1/style-3.rasi";
 	//const std::string theme = "";
 	//const std::string launcher = "rofi -dmenu";
@@ -166,17 +160,6 @@ int main(int argc, char *argv[])
 		
 	}else EXIT_FAILURE;
 
-	/*
-	if()
-	command = "echo \"1920x1080\n1366x768\n1024x768\n800x600\n640x480\" | dmenu -p \"resolution\"";
-	selected = exec(command.c_str());
-	if(selected.empty())
-		return EXIT_FAILURE;
-	selected.pop_back(); // borro el salto de línea
-	begPos = selected.find_first_of('x');
-	command = "cvt ";
-	*/
-
 	feedback = exec(command.c_str());
 
 	std::cout << feedback << std::endl;
@@ -189,42 +172,6 @@ int main(int argc, char *argv[])
 	std::cout << feedback << std::endl;
 
 	return EXIT_SUCCESS;
-}
-
-std::string exec(const char* cmd)
-{
-	std::array<char, 128> buffer;
-	std::string result;
-	std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
-	if(!pipe)
-	{
-		throw std::runtime_error("popen() failed!");
-	}
-	while(fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
-	{
-		result += buffer.data();
-	}
-	return result;
-}
-
-std::string menu(std::string launcher, std::string theme, std::string prompt, std::list<std::string> options)
-{
-	std::string command = "echo \"";
-	while(!options.empty())
-	{
-		command += options.front()+"\n";
-		options.pop_front();
-	}
-	command.pop_back(); // borro el último salto de línea
-	command += "\" | "+launcher+" -p \""+prompt+"\" -theme "+theme;
-
-	std::string selected = exec(command.c_str());
-	if(!selected.empty())
-	{
-		selected.pop_back(); // borro el salto de línea
-	}
-	
-	return selected;
 }
 
 std::list<std::string> getDevices(void)
