@@ -15,8 +15,6 @@ struct Screen
 
 std::list<Screen> connectedScreens;
 
-const char* help = "acá iría la ayuda si existiera.";
-
 int main(int argc, char *argv[])
 {
 	std::string feedback;
@@ -26,47 +24,17 @@ int main(int argc, char *argv[])
 	std::string resolution;
 	size_t begPos, endPos;
 
-	std::string theme, theme_no_entry, launcher;
+	std::string THEME, theme_no_entry, LAUNCHER;
 
-	for(int i = 1; i < argc; i++)
+	if(parseArguments(argc, argv, THEME, LAUNCHER) != EXIT_SUCCESS)
 	{
-		if(std::string(argv[i]) == "-theme")
-		{
-			theme = std::string(argv[i+1]);
-			i++;
-		}
-		else if(std::string(argv[i]) == "-launcher")
-		{
-			launcher = argv[i+1];
-			i++;
-		}
-		else
-		{
-			command = "notify-send 'dmenu-mons: Unknown argument: "+std::string(argv[i])+".\n"+std::string(help)+"' -u critical";
-			exec(command.c_str());
-			return EXIT_FAILURE;
-		}
-	}
-
-	if(launcher.empty())
-	{
-		command = "notify-send 'dmenu-mons: Please specify a launcher with -launcher. Use rofi or dmenu' -u critical";
-		exec(command.c_str());
-		return EXIT_FAILURE;
-	}
-
-	if(launcher == "rofi") launcher = "rofi -dmenu";
-	else if(launcher != "dmenu")
-	{
-		command = "notify-send 'dmenu-mons: Unknown launcher: "+launcher+". Use rofi or dmenu' -u critical";
-		exec(command.c_str());
 		return EXIT_FAILURE;
 	}
 
 	//const std::string theme = "-theme $HOME/.config/rofi/launchers/type-1/style-3.rasi -l 5";
-	theme += " -l 5";
-	theme_no_entry = theme;
-	if(launcher == "rofi -dmenu") theme_no_entry += " -theme-str \"entry {enabled: false;}\"";
+	THEME += " -l 5";
+	theme_no_entry = THEME;
+	if(LAUNCHER == "rofi -dmenu") theme_no_entry += " -theme-str \"entry {enabled: false;}\"";
 	//const std::string theme = "-theme $HOME/.config/rofi/applets/type-1/style-3.rasi";
 	//const std::string theme = "";
 	//const std::string launcher = "rofi -dmenu";
@@ -86,7 +54,7 @@ int main(int argc, char *argv[])
 		std::cout << "connected device: " << it->name << " - " << it->width << "x" << it->height << std::endl;
 	}
 
-	selected = menu(launcher, theme_no_entry, "mons", options);
+	selected = menu(LAUNCHER, theme_no_entry, "mons", options);
 	if(selected.empty()) return EXIT_FAILURE;
 	
 	// borro el icono inicial
@@ -100,7 +68,7 @@ int main(int argc, char *argv[])
 		options.push_back("top");
 		options.push_back("bottom");
 		
-		selected = menu(launcher, theme_no_entry, "extend screen", options);
+		selected = menu(LAUNCHER, theme_no_entry, "extend screen", options);
 		if(selected.empty()) return EXIT_FAILURE;
 
 		command = "mons -e "+selected;
@@ -117,12 +85,12 @@ int main(int argc, char *argv[])
 	{	
 		// selecciono el dispositivo cuyo modo quiero cambiar
 		options = getDevices();
-		selected = menu(launcher, theme_no_entry, "select device", options);
+		selected = menu(LAUNCHER, theme_no_entry, "select device", options);
 		if(selected.empty()) return EXIT_FAILURE;
 
 		device = selected;
 		
-		command = launcher+" -p \"⤢ resolution\" "+theme+" < /dev/null";
+		command = LAUNCHER+" -p \"⤢ resolution\" "+THEME+" < /dev/null";
 		selected = exec(command.c_str());
 
 		if(selected.empty()) return EXIT_FAILURE;
