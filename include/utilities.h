@@ -2,10 +2,10 @@
 #define UTILITIES_H
 
 #include <string>
-#include <memory>
 #include <sstream>
 #include <list>
-#include <array>
+#include <array>        //para funcion exec (array)
+#include <memory>       //para funcion exec (unique_ptr)
 
 #define HELP "acá iría la ayuda si existiera."
 
