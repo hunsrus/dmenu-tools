@@ -90,12 +90,14 @@ int main(int argc, char *argv[])
 
 		device = selected;
 		
-		command = LAUNCHER+" -p \"⤢ resolution\" "+THEME+" < /dev/null";
-		selected = exec(command.c_str());
-
+		options.clear();
+		options.push_back("1920 1080");
+		options.push_back("1366 768");
+		options.push_back("1360 768");
+		options.push_back("1024 768");
+		
+		selected = menu(LAUNCHER, THEME, "⤢ resolution", options);
 		if(selected.empty()) return EXIT_FAILURE;
-
-		selected.pop_back(); // borro el salto de línea
 
 		resolution = selected;
 
