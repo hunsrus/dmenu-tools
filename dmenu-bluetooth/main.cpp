@@ -1,14 +1,9 @@
 // agregar antes de cada break una salida por notificación
 // posiblemente usando dunst (o dunstify no se como es)
-
-#include <string>
 #include <iostream>
-#include <sstream>
-#include <list>
-#include <array>        //para funcion exec (array)
-#include <memory>       //para funcion exec (unique_ptr)
 #include <chrono>       //para dunstifyScan()
 #include <thread>
+#include "../include/utilities.h"
 
 struct Device
 {
@@ -18,7 +13,6 @@ struct Device
 
 float mapear(float val, float valMin, float valMax, float outMin, float outMax);
 void notifyProgress(void);
-std::string exec(const char* cmd);
 
 int main(int argc, char *argv[])
 {
@@ -34,10 +28,22 @@ int main(int argc, char *argv[])
     Device connectedDevice;
     size_t begPos, endPos;
 
+    std::list<std::string> options;
+	std::string THEME, theme_no_entry, LAUNCHER;
+
+	if(parseArguments(argc, argv, THEME, LAUNCHER) != EXIT_SUCCESS)
+	{
+		return EXIT_FAILURE;
+	}
+
+    THEME += " -l 3";
+	theme_no_entry = THEME;
+	if(LAUNCHER == "rofi -dmenu") theme_no_entry += " -theme-str \"entry {enabled: false;}\"";
+
     while(true)
     {
-        command = preProcess+"echo \"devices\nscan\npower on/off\" | dmenu -p \"";
-        preProcess.clear();
+        //command = preProcess+"echo \"devices\nscan\npower on/off\" | dmenu -p \"";
+        //preProcess.clear();
 
         // primero me fijo si el controlador está encendido
         feedback = exec("bluetoothctl show");
@@ -68,9 +74,16 @@ int main(int argc, char *argv[])
             }
         }
         // escribo el estado actual como prompt de dmenu (después de -p)
-        command.append(status+"\"");
+        options.clear();
+        options.push_back("devices");
+        options.push_back("scan");
+        options.push_back("on/off");
+        
+        selected = menu(LAUNCHER, theme_no_entry, status, options);
+        if(selected.empty()) return EXIT_FAILURE;
+        //command.append(status+"\"");
 
-        selected = exec(command.c_str());
+        //selected = exec(command.c_str());
 
         // si antes de elegir la opción se corrió el pre-proceso de scan, entonces ignoro
         // el feedback de éste y busco el feedback que corresponde a la selección de dmenu
@@ -81,7 +94,7 @@ int main(int argc, char *argv[])
             selected = selected.substr(begPos,endPos);
         }
 
-        if(selected == "devices\n")
+        if(selected == "devices")
         {
             devices.clear();
             fullStream.str(exec("bluetoothctl devices"));
@@ -98,19 +111,20 @@ int main(int argc, char *argv[])
                 // pero después tengo que recorrer la lista una vez mas (despues de este bucle) para sacarlos ordenados
                 devices.push_front(auxDevice);
             }
+            
+            options.clear();
             for (std::list<Device>::iterator it = devices.begin(); it != devices.end(); it++)
-                command.append(it->name+"\n");
+                options.push_back(it->name);
             // borro el último salto de línea para que no genere un elemento vacío
-            command.pop_back();
 
-            command.append("\" | dmenu -p devices");
-            selected = exec(command.c_str());
+            selected = menu(LAUNCHER, theme_no_entry, "devices", options);
+            if(selected.empty()) return EXIT_FAILURE;
 
             command.clear();
             
             for (std::list<Device>::iterator it = devices.begin(); it != devices.end(); it++)
             {
-                if(selected == it->name+"\n")
+                if(selected == it->name)
                 {
                     if(connectedDevice.addr == it->addr)
                         command = "bluetoothctl disconnect "+it->addr;
@@ -119,8 +133,6 @@ int main(int argc, char *argv[])
                 }
             }
 
-            
-            
             // si no se elije ningun dispositivo, no se ejecuta el comando
             if(!command.empty())
             {
@@ -144,7 +156,7 @@ int main(int argc, char *argv[])
             // UPDATE al final voy a hacer que esta acción muestre una notificación y termine el programa
             //fullStream.clear();
             break;
-        }else if(selected == "scan\n")
+        }else if(selected == "scan")
         {
             // en lugar de correr el proceso directamente y esperar el timeout sin posibilidad
             // de seguir usando el programa, lo paso como un proceso que se va a ejecutar en conjunto
@@ -156,7 +168,7 @@ int main(int argc, char *argv[])
             exec("bluetoothctl --timeout 5 scan on");
             t1.join();
             //preProcess.append("dunstify \"scan complete\" & ");
-        }else if(selected == "power on/off\n")
+        }else if(selected == "on/off")
         {
             if(status == "bluetooth off")
             {
@@ -196,18 +208,4 @@ void notifyProgress(void)
 float mapear(float val, float valMin, float valMax, float outMin, float outMax)
 {
     return (val - valMin)*(outMax-outMin)/(valMax-valMin) + outMin;
-}
-
-std::string exec(const char* cmd)
-{
-    std::array<char, 128> buffer;
-    std::string result;
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
-    if (!pipe) {
-        throw std::runtime_error("popen() failed!");
-    }
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-        result += buffer.data();
-    }
-    return result;
 }
