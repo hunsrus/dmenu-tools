@@ -18,7 +18,6 @@ int main(int argc, char *argv[])
 	theme_no_entry = THEME;
 	if(LAUNCHER == "rofi -dmenu") theme_no_entry += " -theme-str \"entry {enabled: false;}\"";
 
-
 	options.push_back("shutdown");
 	options.push_back("reboot");
 	options.push_back("suspend");
