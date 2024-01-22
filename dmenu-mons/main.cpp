@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 	//const std::string theme = "-theme $HOME/.config/rofi/launchers/type-1/style-3.rasi -l 5";
 	THEME += " -l 5";
 	theme_no_entry = THEME;
-	if(LAUNCHER == "rofi -dmenu") theme_no_entry += " -theme-str \"entry {enabled: false;}\"";
+	if(LAUNCHER == "rofi -dmenu") theme_no_entry += " -theme-str \"entry {enabled: false;} configuration {show-icons: false;}\"";
 	//const std::string theme = "-theme $HOME/.config/rofi/applets/type-1/style-3.rasi";
 	//const std::string theme = "";
 	//const std::string launcher = "rofi -dmenu";
@@ -42,11 +42,18 @@ int main(int argc, char *argv[])
 
 	std::list<std::string> options;
 
+	/*
 	options.push_back("↔ extend");
 	options.push_back("= duplicate");
 	options.push_back("‖ mirror");
 	options.push_back("↺ auto");
 	options.push_back(" mode");
+	*/
+	options.push_back(" extend");
+	options.push_back("󰍺 duplicate");
+	options.push_back(" mirror");
+	options.push_back("󰁨 auto");
+	options.push_back(" mode");
 
 	getScreens();
 	for (std::list<Screen>::iterator it = connectedScreens.begin(); it != connectedScreens.end(); it++)
@@ -54,7 +61,7 @@ int main(int argc, char *argv[])
 		std::cout << "connected device: " << it->name << " - " << it->width << "x" << it->height << std::endl;
 	}
 
-	selected = menu(LAUNCHER, theme_no_entry, "mons", options);
+	selected = menu(LAUNCHER, theme_no_entry, "󰍹 mons", options);
 	if(selected.empty()) return EXIT_FAILURE;
 	
 	// borro el icono inicial
@@ -68,7 +75,7 @@ int main(int argc, char *argv[])
 		options.push_back("top");
 		options.push_back("bottom");
 		
-		selected = menu(LAUNCHER, theme_no_entry, "extend screen", options);
+		selected = menu(LAUNCHER, theme_no_entry, " extend screen", options);
 		if(selected.empty()) return EXIT_FAILURE;
 
 		command = "mons -e "+selected;
@@ -85,7 +92,7 @@ int main(int argc, char *argv[])
 	{	
 		// selecciono el dispositivo cuyo modo quiero cambiar
 		options = getDevices();
-		selected = menu(LAUNCHER, theme_no_entry, "select device", options);
+		selected = menu(LAUNCHER, theme_no_entry, "󰷜 select device", options);
 		if(selected.empty()) return EXIT_FAILURE;
 
 		device = selected;
@@ -96,7 +103,7 @@ int main(int argc, char *argv[])
 		options.push_back("1360 768");
 		options.push_back("1024 768");
 		
-		selected = menu(LAUNCHER, THEME, "⤢ resolution", options);
+		selected = menu(LAUNCHER, THEME, " resolution", options);
 		if(selected.empty()) return EXIT_FAILURE;
 
 		resolution = selected;
@@ -167,7 +174,7 @@ std::string selectDevice(void)
 		command += it->name+"\n";
 		std::cout << "connected device: " << it->name << " - " << it->width << "x" << it->height << std::endl;
 	}
-	command.pop_back(); //botto el último \n
+	command.pop_back(); //borro el último \n
 	command += "\" | dmenu -p \"slect device\"";
 
 	selected = exec(command.c_str());

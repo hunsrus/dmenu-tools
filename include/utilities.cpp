@@ -18,7 +18,7 @@ int parseArguments(int argc, char *argv[], std::string &THEME, std::string &LAUN
 		}
 		else
 		{
-			command = "notify-send 'dmenu-mons: Unknown argument: "+std::string(argv[i])+".\n"+HELP+"' -u critical";
+			command = "notify-send '󰀦 dmenu-mons: Unknown argument: "+std::string(argv[i])+".\n"+HELP+"' -u critical";
 			exec(command.c_str());
 			return EXIT_FAILURE;
 		}
@@ -26,7 +26,7 @@ int parseArguments(int argc, char *argv[], std::string &THEME, std::string &LAUN
 
 	if(LAUNCHER.empty())
 	{
-		command = "notify-send 'dmenu-mons: Please specify a launcher with -launcher. Use rofi or dmenu' -u critical";
+		command = "notify-send '󰀦 dmenu-mons: Please specify a launcher with -launcher. Use rofi or dmenu' -u critical";
 		exec(command.c_str());
 		return EXIT_FAILURE;
 	}
@@ -34,7 +34,7 @@ int parseArguments(int argc, char *argv[], std::string &THEME, std::string &LAUN
 	if(LAUNCHER == "rofi") LAUNCHER = "rofi -dmenu";
 	else if(LAUNCHER != "dmenu")
 	{
-		command = "notify-send 'dmenu-mons: Unknown launcher: "+LAUNCHER+". Use rofi or dmenu' -u critical";
+		command = "notify-send '󰀦 dmenu-mons: Unknown launcher: "+LAUNCHER+". Use rofi or dmenu' -u critical";
 		exec(command.c_str());
 		return EXIT_FAILURE;
 	}
@@ -67,7 +67,8 @@ std::string menu(std::string launcher, std::string theme, std::string prompt, st
 		options.pop_front();
 	}
 	command.pop_back(); // borro el último salto de línea
-	command += "\" | "+launcher+" -p \""+prompt+"\" -theme "+theme;
+	command += "\" | "+launcher+" -p \""+prompt+"\"";
+	if(launcher == "rofi -dmenu") command += " -theme "+theme;
 
 	std::string selected = exec(command.c_str());
 	if(!selected.empty())

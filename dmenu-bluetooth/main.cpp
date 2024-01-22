@@ -75,11 +75,11 @@ int main(int argc, char *argv[])
         }
         // escribo el estado actual como prompt de dmenu (después de -p)
         options.clear();
-        options.push_back("devices");
-        options.push_back("scan");
-        options.push_back("on/off");
+        options.push_back("󰋋 devices");
+        options.push_back(" scan");
+        options.push_back(" on/off");
         
-        selected = menu(LAUNCHER, theme_no_entry, status, options);
+        selected = menu(LAUNCHER, theme_no_entry, " "+status, options);
         if(selected.empty()) return EXIT_FAILURE;
         //command.append(status+"\"");
 
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
             selected = selected.substr(begPos,endPos);
         }
 
-        if(selected == "devices")
+        if(selected == "󰋋 devices")
         {
             devices.clear();
             fullStream.str(exec("bluetoothctl devices"));
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
                 options.push_back(it->name);
             // borro el último salto de línea para que no genere un elemento vacío
 
-            selected = menu(LAUNCHER, theme_no_entry, "devices", options);
+            selected = menu(LAUNCHER, theme_no_entry, selected, options);
             if(selected.empty()) return EXIT_FAILURE;
 
             command.clear();
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
             // UPDATE al final voy a hacer que esta acción muestre una notificación y termine el programa
             //fullStream.clear();
             break;
-        }else if(selected == "scan")
+        }else if(selected == " scan")
         {
             // en lugar de correr el proceso directamente y esperar el timeout sin posibilidad
             // de seguir usando el programa, lo paso como un proceso que se va a ejecutar en conjunto
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
             exec("bluetoothctl --timeout 5 scan on");
             t1.join();
             //preProcess.append("dunstify \"scan complete\" & ");
-        }else if(selected == "on/off")
+        }else if(selected == " on/off")
         {
             if(status == "bluetooth off")
             {
