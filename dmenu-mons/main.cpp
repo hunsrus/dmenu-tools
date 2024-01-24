@@ -143,7 +143,8 @@ int main(int argc, char *argv[])
 
 	// reimensionar el fondo para que ocupe toda la nueva pantalla
 	// debería hacerlo sólo si salió bien el comando anterior (chequear feedback)
-	command = "feh --bg-scale '/home/gabriel/Imágenes/Wallpapers/gris.jpg'";
+	command = "sed -n 2p ~/.fehbg";	// obtiene el path del wallpaper actual (si se usa feh)
+	command = exec(command.c_str());
 	feedback = exec(command.c_str());
 
 	std::cout << feedback << std::endl;
